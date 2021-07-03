@@ -8,7 +8,7 @@ def get_default_configs():
   config.training = training = ml_collections.ConfigDict()
   config.training.batch_size = 128
   training.n_iters = 1300001
-  training.snapshot_freq = 500
+  training.snapshot_freq = 5000
   training.log_freq = 50
   training.eval_freq = 100
   ## store additional checkpoints for preemption in cloud computing environments
@@ -39,12 +39,13 @@ def get_default_configs():
 
   # data
   config.data = data = ml_collections.ConfigDict()
-  data.dataset = 'CIFAR10'
-  data.image_size = 32
+  data.dataset = 'pokemon'
+  data.image_size = 64
   data.random_flip = True
   data.centered = False
   data.uniform_dequantization = False
   data.num_channels = 3
+  data.tfrecords_path = 'pokemon.tfrecords'
 
   # model
   config.model = model = ml_collections.ConfigDict()

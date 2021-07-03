@@ -23,6 +23,16 @@ import logging
 import os
 import tensorflow as tf
 
+assert tf.test.is_gpu_available()
+assert tf.test.is_gpu_available(cuda_only=True)
+
+# import subprocess
+# print(subprocess.check_output("nvcc --version"))
+
+import torch
+
+assert torch.cuda.is_available()
+
 FLAGS = flags.FLAGS
 
 config_flags.DEFINE_config_file(
