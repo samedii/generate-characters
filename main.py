@@ -15,6 +15,9 @@
 
 """Training and evaluation"""
 
+import torch
+torch.cuda.current_device()
+
 import run_lib
 from absl import app
 from absl import flags

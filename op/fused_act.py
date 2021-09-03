@@ -6,7 +6,7 @@ from torch.nn import functional as F
 from torch.autograd import Function
 from torch.utils.cpp_extension import load
 
-
+print("fused act start")
 module_path = os.path.dirname(__file__)
 fused = load(
     "fused",
@@ -95,3 +95,5 @@ def fused_leaky_relu(input, bias, negative_slope=0.2, scale=2 ** 0.5):
 
     else:
         return FusedLeakyReLUFunction.apply(input, bias, negative_slope, scale)
+
+print("fused act end")

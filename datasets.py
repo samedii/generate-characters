@@ -162,6 +162,11 @@ def get_dataset(config, uniform_dequantization=False, evaluation=False):
       img = tf.image.convert_image_dtype(data, tf.float32)
       if config.data.random_flip and not evaluation:
         img = tf.image.random_flip_left_right(img)
+      if not evaluation:
+        img = tf.image.random_hue(img, 0.1)
+        img = tf.image.random_saturation(img, 0.4, 1.2)
+        img = tf.image.random_brightness(img, 0.2)
+        img = tf.image.random_contrast(img, 0.8, 1.2)
       if uniform_dequantization:
         img = (tf.random.uniform(img.shape, dtype=tf.float32) + img * 255.) / 256.
       return dict(image=img, label=None)

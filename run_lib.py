@@ -24,6 +24,7 @@ import time
 import numpy as np
 import tensorflow as tf
 import tensorflow_gan as tfgan
+from PIL import Image
 import logging
 # Keep the import below for registering all model definitions
 from models import ddpm, ncsnv2, ncsnpp
@@ -163,9 +164,13 @@ def train(config, workdir):
         nrow = int(np.sqrt(sample.shape[0]))
         image_grid = make_grid(sample, nrow, padding=2)
         sample = np.clip(sample.permute(0, 2, 3, 1).cpu().numpy() * 255, 0, 255).astype(np.uint8)
-        with tf.io.gfile.GFile(
-            os.path.join(this_sample_dir, "sample.np"), "wb") as fout:
-          np.save(fout, sample)
+        # with tf.io.gfile.GFile(
+        #     os.path.join(this_sample_dir, "sample.np"), "wb") as fout:
+        #   np.save(fout, sample)
+
+        for index, sample_ in enumerate(sample):
+          Image.fromarray(sample_).save(os.path.join(this_sample_dir, f"sample{index}.png"))
+          Image.fromarray(sample_).resize((512, 512), resample=Image.NEAREST).save(os.path.join(this_sample_dir, f"sample{index}_large.png"))
 
         with tf.io.gfile.GFile(
             os.path.join(this_sample_dir, "sample.png"), "wb") as fout:
