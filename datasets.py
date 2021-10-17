@@ -18,6 +18,7 @@
 import jax
 import tensorflow as tf
 import tensorflow_datasets as tfds
+from monster_dataset import MonsterDataset
 
 
 def get_data_scaler(config):
@@ -138,20 +139,20 @@ def get_dataset(config, uniform_dequantization=False, evaluation=False):
         img = tf.image.convert_image_dtype(img, tf.float32)
         return img
 
-  elif config.data.dataset in ['FFHQ', 'CelebAHQ', 'pokemon', 'custom']:
+  elif config.data.dataset in ['FFHQ', 'CelebAHQ']:
     dataset_builder = tf.data.TFRecordDataset(config.data.tfrecords_path)
     train_split_name = eval_split_name = 'train'
 
   elif config.data.dataset in ['pokemon', 'custom']:
-    dataset_builder = tf.data.TFRecordDataset(config.data.tfrecords_path)
+    # dataset_builder = tf.data.TFRecordDataset(config.data.tfrecords_path)
     train_split_name = eval_split_name = 'train'
-
+    dataset_builder = MonsterDataset()
   else:
     raise NotImplementedError(
       f'Dataset {config.data.dataset} not yet supported.')
 
   # Customize preprocess functions for each dataset.
-  if config.data.dataset in ['FFHQ', 'CelebAHQ', 'pokemon', 'custom']:
+  if config.data.dataset in ['FFHQ', 'CelebAHQ']:
     def preprocess_fn(d):
       sample = tf.io.parse_single_example(d, features={
         'shape': tf.io.FixedLenFeature([3], tf.int64),
@@ -170,11 +171,25 @@ def get_dataset(config, uniform_dequantization=False, evaluation=False):
       if uniform_dequantization:
         img = (tf.random.uniform(img.shape, dtype=tf.float32) + img * 255.) / 256.
       return dict(image=img, label=None)
+  elif config.data.dataset in ['pokemon', 'custom']:
+    def preprocess_fn(d):
+      img = d['image']
+      img = tf.image.convert_image_dtype(img, tf.float32)
 
+      img = tf.image.random_flip_left_right(img)
+
+      # if not evaluation:
+      #   img = tf.image.random_hue(img, 0.1)
+      #   img = tf.image.random_saturation(img, 0.4, 1.2)
+      #   img = tf.image.random_brightness(img, 0.2)
+      #   img = tf.image.random_contrast(img, 0.8, 1.2)
+
+      return dict(image=img, label=None)
   else:
     def preprocess_fn(d):
       """Basic preprocessing function scales data to [0, 1) and randomly flips."""
-      img = resize_op(d['image'])
+      img = d['image']
+      # img = resize_op(d['image'])
       if config.data.random_flip and not evaluation:
         img = tf.image.random_flip_left_right(img)
       if uniform_dequantization:
